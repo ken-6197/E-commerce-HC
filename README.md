@@ -1,22 +1,25 @@
-# BloomShop - Free Next.js Tailwind CSS E-Commerce Template
+# HillCart - Authentic Tribal Products from Manipur
 
 #### Preview
+- [Live Demo](https://hillcart.vercel.app/)
 
- - [Demo](https://themewagon.github.io/bloomtpl/)
+#### Repository
+- [GitHub](https://github.com/YOUR_USERNAME/hillcart)
 
-#### Download
- - [Download from ThemeWagon](https://themewagon.com/themes/bloomtpl/)
+## About
+
+HillCart is an e-commerce platform dedicated to celebrating and preserving the rich cultural heritage of Manipur's hill tribes. We bring you authentic, handcrafted products from Rongmei, Liangmei, Tangkhul, Zeme, Poumai, and other indigenous communities of Northeast India.
 
 ## Getting Started
 
 1. Clone Repository
-```
-git clone https://github.com/themewagon/bloomtpl.git
-```
+git clone https://github.com/YOUR_USERNAME/hillcart.git
+
+
 2. Install Dependencies
-```
 npm i
-```
+
+
 3. Run the development server:
 
 ```bash
@@ -27,15 +30,44 @@ yarn dev
 pnpm dev
 # or
 bun dev
-```
+Features
+Authentic tribal products from Manipur
 
-## Author 
-```
-Design and code is completely written by Bloomtpl and development team. 
-```
+Full shopping cart functionality
 
-## License
+Product search and filtering
 
- - Design and Code is Copyright &copy; <a href="https://github.com/bloomtpl" target="_blank">Bloomtpl</a>
- - Licensed cover under [MIT]
- - Distributed by <a href="https://themewagon.com" target="_blank">ThemeWagon</a>
+User authentication (Login/Signup)
+
+Fully responsive design
+
+Indian Rupee currency support
+
+Customizable with Tailwind CSS
+
+Tech Stack
+Next.js 14
+
+TypeScript
+
+Tailwind CSS
+
+shadcn/ui
+
+React Context
+
+Lucide Icons
+
+Author
+
+Design and code is completely written by HillCart development team.
+License
+Design and Code is Copyright © <a href="https://github.com/YOUR_USERNAME" target="_blank">HillCart</a>
+
+Licensed under [MIT]
+
+
+
+---
+
+Replace `YOUR_USERNAME` and the demo URL with your actual details. 🏔️
