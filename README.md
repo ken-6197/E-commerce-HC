@@ -1,7 +1,7 @@
 # HillCart - Authentic Tribal Products from Manipur
 
 #### Preview
-- [Live Demo](https://hillcart.vercel.app/)
+- [Live Demo](https://hillcart.vercel.app)
 
 #### Repository
 - [GitHub](https://github.com/YOUR_USERNAME/hillcart)
@@ -70,4 +70,4 @@ Licensed under [MIT]
 
 ---
 
-Replace `YOUR_USERNAME` and the demo URL with your actual details. 🏔️
+Replace `YOUR_USERNAME` and the demo URL with your actual details.
