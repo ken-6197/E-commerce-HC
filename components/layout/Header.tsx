@@ -1,15 +1,16 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
-import { Menu, Search, ShoppingCart, User, X } from "lucide-react";
+import { LogOut, Menu, Search, ShoppingCart, User, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
 
 export default function Header() {
   const { cart } = useCart();
+  const router = useRouter();
   const cartCount =
     cart?.reduce((total, item) => total + item.quantity, 0) || 0;
   const [isMobileOpen, setIsMobileOpen] = useState(false);
@@ -18,8 +19,19 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userName, setUserName] = useState("");
   const pathname = usePathname();
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  // Check login status on mount and when pathname changes
+  useEffect(() => {
+    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
+    const name = localStorage.getItem("userName") || "";
+    setIsLoggedIn(loggedIn);
+    setUserName(name);
+  }, [pathname]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,6 +58,13 @@ export default function Header() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Focus search input when search opens
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      setTimeout(() => searchInputRef.current?.focus(), 100);
+    }
+  }, [isSearchOpen]);
+
   const toggleMobileMenu = useCallback(() => {
     setIsMobileOpen((prev) => !prev);
   }, []);
@@ -57,6 +76,25 @@ export default function Header() {
   const toggleUserMenu = useCallback(() => {
     setIsUserMenuOpen((prev) => !prev);
   }, []);
+
+  const handleLogout = useCallback(() => {
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("userName");
+    setIsLoggedIn(false);
+    setUserName("");
+    setIsUserMenuOpen(false);
+    router.push("/");
+  }, [router]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchOpen(false);
+      setSearchQuery("");
+    }
+  };
 
   const isActivePath = (path: string) => pathname === path;
 
@@ -115,8 +153,9 @@ export default function Header() {
           </div>
 
           <div className="hidden lg:flex flex-1 max-w-md mx-8">
-            <form className="relative w-full">
+            <form onSubmit={handleSearch} className="relative w-full">
               <input
+                ref={searchInputRef}
                 type="search"
                 placeholder="Search products..."
                 value={searchQuery}
@@ -124,7 +163,13 @@ export default function Header() {
                 className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
                 aria-label="Search products"
               />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <button
+                type="submit"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Submit search"
+              >
+                <Search className="h-4 w-4" />
+              </button>
             </form>
           </div>
 
@@ -178,28 +223,60 @@ export default function Header() {
 
               {isUserMenuOpen && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                  <Link
-                    href="/login"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                    onClick={() => setIsUserMenuOpen(false)}
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    href="/signup"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                    onClick={() => setIsUserMenuOpen(false)}
-                  >
-                    Sign Up
-                  </Link>
-                  <div className="border-t border-gray-200 my-1"></div>
-                  <Link
-                    href="/profile"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                    onClick={() => setIsUserMenuOpen(false)}
-                  >
-                    My Profile
-                  </Link>
+                  {isLoggedIn ? (
+                    <>
+                      <div className="px-4 py-2 text-sm font-medium text-gray-900 border-b border-gray-200">
+                        👋 Welcome, {userName || "User"}!
+                      </div>
+                      <Link
+                        href="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        My Profile
+                      </Link>
+                      <Link
+                        href="/orders"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        My Orders
+                      </Link>
+                      <div className="border-t border-gray-200 my-1"></div>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
+                      >
+                        <LogOut className="h-4 w-4" />
+                        Logout
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href="/login"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        Login
+                      </Link>
+                      <Link
+                        href="/signup"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        Sign Up
+                      </Link>
+                      <div className="border-t border-gray-200 my-1"></div>
+                      <Link
+                        href="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        My Profile
+                      </Link>
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -208,8 +285,9 @@ export default function Header() {
 
         {isSearchOpen && (
           <div className="lg:hidden mt-4 animate-in slide-in-from-top duration-200">
-            <form className="relative">
+            <form onSubmit={handleSearch} className="relative">
               <input
+                ref={searchInputRef}
                 type="search"
                 placeholder="Search products..."
                 value={searchQuery}
@@ -218,7 +296,13 @@ export default function Header() {
                 aria-label="Search products"
                 autoFocus
               />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <button
+                type="submit"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                aria-label="Submit search"
+              >
+                <Search className="h-4 w-4" />
+              </button>
             </form>
           </div>
         )}
@@ -244,20 +328,53 @@ export default function Header() {
             </div>
 
             <div className="flex flex-col space-y-3 pt-4">
-              <Link
-                href="/login"
-                onClick={closeMobileMenu}
-                className="text-sm font-medium py-2 px-3 rounded-lg transition-all text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-              >
-                Login
-              </Link>
-              <Link
-                href="/signup"
-                onClick={closeMobileMenu}
-                className="text-sm font-medium py-2 px-3 rounded-lg transition-all text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-              >
-                Sign Up
-              </Link>
+              {isLoggedIn ? (
+                <>
+                  <div className="text-sm font-medium px-3 py-2 text-gray-900">
+                    👋 Welcome, {userName || "User"}!
+                  </div>
+                  <Link
+                    href="/profile"
+                    onClick={closeMobileMenu}
+                    className="text-sm font-medium py-2 px-3 rounded-lg transition-all text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                  >
+                    My Profile
+                  </Link>
+                  <Link
+                    href="/orders"
+                    onClick={closeMobileMenu}
+                    className="text-sm font-medium py-2 px-3 rounded-lg transition-all text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                  >
+                    My Orders
+                  </Link>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      closeMobileMenu();
+                    }}
+                    className="text-sm font-medium py-2 px-3 rounded-lg transition-all text-red-600 hover:bg-red-50 text-left"
+                  >
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={closeMobileMenu}
+                    className="text-sm font-medium py-2 px-3 rounded-lg transition-all text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/signup"
+                    onClick={closeMobileMenu}
+                    className="text-sm font-medium py-2 px-3 rounded-lg transition-all text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
             </div>
           </nav>
         )}
