@@ -20,8 +20,7 @@ export default function SearchPage() {
     if (query) {
       const results = products.filter((product) =>
         product.name.toLowerCase().includes(query.toLowerCase()) ||
-        product.description?.toLowerCase().includes(query.toLowerCase()) ||
-        product.category?.toLowerCase().includes(query.toLowerCase())
+        product.description?.toLowerCase().includes(query.toLowerCase())
       );
       setSearchResults(results);
     } else {
@@ -124,7 +123,7 @@ export default function SearchPage() {
               Search for products
             </h2>
             <p className="text-muted-foreground max-w-md mx-auto">
-              Enter a product name, category, or keyword to find what you're looking for.
+              Enter a product name or keyword to find what you're looking for.
             </p>
           </div>
         )}
