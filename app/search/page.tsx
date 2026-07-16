@@ -9,12 +9,21 @@ import products from "@/data/products.json";
 import ProductCard from "@/components/home/ProductCard";
 import Link from "next/link";
 
+// Define the Product type
+interface Product {
+  id: number;
+  name: string;
+  price: number;
+  image: string;
+  description: string;
+}
+
 export default function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const query = searchParams.get("q") || "";
   const [searchQuery, setSearchQuery] = useState(query);
-  const [searchResults, setSearchResults] = useState([]);
+  const [searchResults, setSearchResults] = useState<Product[]>([]);
 
   useEffect(() => {
     if (query) {
