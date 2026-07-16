@@ -50,94 +50,93 @@ export default function Footer() {
   return (
     <footer className="bg-background border-t border-border">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
-            {/* Brand Section */}
+        <div className="py-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+            {/* Brand Section - spans 2 columns */}
             <div className="lg:col-span-2">
               <Link
-                className="inline-flex items-center gap-2 text-2xl tracking-tight text-gray-900 hover:text-gray-700 transition-colors"
+                className="inline-flex items-center gap-2 text-xl tracking-tight text-gray-900 hover:text-gray-700 transition-colors"
                 href="/"
                 aria-label="HillVogue Home"
               >
                 <Image
                   src="/images/Rongmei-New-2023.svg"
                   alt="HillVogue Logo"
-                  width={32}
-                  height={32}
+                  width={28}
+                  height={28}
                   className="object-contain"
                 />
                 <span className="whitespace-nowrap">
                   Hill<span className="text-primary">Vogue</span>
                 </span>
               </Link>
-              <p className="text-muted-foreground mt-4 mb-6 max-w-sm leading-relaxed">
-                HillVogue brings you premium tribal fashion from the heart of Manipur. 
-                Where hill heritage meets modern style. Each piece tells a story of 
-                tradition and elegance.
+              <p className="text-sm text-muted-foreground mt-2 mb-4 max-w-sm leading-relaxed">
+                Premium tribal fashion from Manipur. Where heritage meets modern style.
               </p>
 
-              <div className="space-y-3">
-                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <MapPin className="h-4 w-4 text-primary shrink-0" />
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                  <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
                   <span>Imphal, Manipur, India</span>
                 </div>
-                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <Phone className="h-4 w-4 text-primary shrink-0" />
+                <div className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                  <Phone className="h-3.5 w-3.5 text-primary shrink-0" />
                   <span>+91 9233661750</span>
                 </div>
-                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                  <Mail className="h-4 w-4 text-primary shrink-0" />
+                <div className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                  <Mail className="h-3.5 w-3.5 text-primary shrink-0" />
                   <span>hello@hillvogue.com</span>
                 </div>
               </div>
 
-              <div className="flex gap-3 mt-6">
+              <div className="flex gap-2 mt-4">
                 {socialLinks.map(({ href, icon: Icon, label }) => (
                   <Button
                     key={label}
                     variant="ghost"
                     size="icon"
                     asChild
-                    className="h-10 w-10 rounded-full bg-muted/60 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
+                    className="h-8 w-8 rounded-full bg-muted/60 hover:bg-primary hover:text-primary-foreground transition-all duration-300"
                   >
                     <Link href={href} aria-label={label} target="_blank" rel="noopener noreferrer">
-                      <Icon className="h-4 w-4" />
+                      <Icon className="h-3.5 w-3.5" />
                     </Link>
                   </Button>
                 ))}
               </div>
             </div>
 
-            {/* Footer Sections */}
-            {footerSections.map((section, index) => (
-              <div
-                key={section.title}
-                className={`${index >= 2 ? "lg:col-span-1" : ""}`}
-              >
-                <h4 className="text-sm font-semibold text-foreground mb-4 uppercase tracking-wider">
-                  {section.title}
-                </h4>
-                <ul className="space-y-3">
-                  {section.links.map((link) => (
-                    <li key={link.label}>
-                      <Link
-                        href={link.href}
-                        className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-block"
-                      >
-                        {link.label}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+            {/* Footer Sections - evenly distributed */}
+            <div className="lg:col-span-4">
+              <div className="grid grid-cols-3 gap-6">
+                {footerSections.map((section) => (
+                  <div key={section.title}>
+                    <h4 className="text-xs font-semibold text-foreground mb-3 uppercase tracking-wider">
+                      {section.title}
+                    </h4>
+                    <ul className="space-y-2">
+                      {section.links.map((link) => (
+                        <li key={link.label}>
+                          <Link
+                            href={link.href}
+                            className="text-xs text-muted-foreground hover:text-foreground transition-colors inline-block"
+                          >
+                            {link.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
               </div>
-            ))}
+            </div>
           </div>
         </div>
 
-        <Separator className="my-8" />
+        <Separator className="my-6" />
 
-        <div className="py-6 flex flex-col md:flex-row justify-center items-center gap-4">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="py-4 flex flex-col md:flex-row justify-center items-center gap-3">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span>© 2026 HillVogue™. Made with Love. All Rights Reserved.</span>
           </div>
         </div>
