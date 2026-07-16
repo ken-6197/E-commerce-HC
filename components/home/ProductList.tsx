@@ -10,12 +10,12 @@ export default function ProductList() {
         ))
       ) : (
         <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
-          <div className="text-6xl mb-4">🔍</div>
+          <div className="text-6xl mb-4">👗</div>
           <h3 className="text-xl font-semibold text-foreground mb-2">
             No products found
           </h3>
           <p className="text-muted-foreground mb-4">
-            Try adjusting your filters or search terms
+            Check back soon for new tribal fashion arrivals
           </p>
         </div>
       )}

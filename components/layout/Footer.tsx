@@ -22,25 +22,14 @@ export default function Footer() {
         { href: "/shop", label: "All Products" },
         { href: "/shop", label: "New Arrivals" },
         { href: "/shop", label: "Sale" },
-        { href: "/shop", label: "Featured" },
       ],
     },
     {
       title: "Customer Care",
       links: [
         { href: "/contact", label: "Contact Us" },
-        { href: "/", label: "Help Center" },
         { href: "/", label: "Shipping Info" },
         { href: "/", label: "Returns & Exchanges" },
-      ],
-    },
-    {
-      title: "Company",
-      links: [
-        { href: "/about", label: "About Us" },
-        { href: "/", label: "Careers" },
-        { href: "/", label: "Blog" },
-        { href: "/", label: "Press" },
       ],
     },
     {
@@ -48,8 +37,6 @@ export default function Footer() {
       links: [
         { href: "/", label: "Privacy Policy" },
         { href: "/", label: "Terms & Conditions" },
-        { href: "/", label: "Cookie Policy" },
-        { href: "/", label: "Accessibility" },
       ],
     },
   ];
@@ -149,30 +136,9 @@ export default function Footer() {
 
         <Separator className="my-8" />
 
-        <div className="py-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="py-6 flex flex-col md:flex-row justify-center items-center gap-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>© 2025 HillVogue™. Made with Love. All Rights Reserved.</span>
-          </div>
-
-          <div className="flex items-center gap-6 text-sm">
-            <Link
-              href="/privacy"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Privacy
-            </Link>
-            <Link
-              href="/terms"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Terms
-            </Link>
-            <Link
-              href="/cookies"
-              className="text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Cookies
-            </Link>
+            <span>© 2026 HillVogue™. Made with Love. All Rights Reserved.</span>
           </div>
         </div>
       </div>

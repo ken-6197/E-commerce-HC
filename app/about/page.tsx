@@ -57,7 +57,7 @@ export default function AboutPage() {
   ];
 
   const milestones = [
-    { year: "2024", title: "HillCart Founded", description: "Born from a vision to celebrate Manipur's tribal heritage" },
+    { year: "2024", title: "HillVogue Founded", description: "Born from a vision to celebrate Manipur's tribal fashion heritage" },
     { year: "2025", title: "First Artisan Partnership", description: "Collaborated with Rongmei and Liangmei artisans" },
     { year: "2026", title: "Expanded Collection", description: "Added products from Tangkhul, Zeme, and Poumai tribes" },
   ];
@@ -70,12 +70,12 @@ export default function AboutPage() {
           <div className="max-w-3xl mx-auto text-center">
             <Badge className="mb-6 bg-primary text-white">Our Story</Badge>
             <h1 className="text-4xl lg:text-6xl font-bold text-foreground mb-6">
-              Celebrating Manipur's <br />
-              <span className="text-primary">Tribal Heritage</span>
+              Where <span className="text-primary">Hill</span> Heritage Meets <br />
+              <span className="text-primary">Modern Vogue</span>
             </h1>
             <p className="text-lg lg:text-xl text-muted-foreground leading-relaxed">
-              HillCart is a celebration of the rich cultural diversity of Manipur's hill tribes. 
-              We bring you authentic, handcrafted products that tell stories of tradition, 
+              HillVogue is a celebration of the rich cultural diversity of Manipur's hill tribes. 
+              We bring you premium, handcrafted fashion that tells stories of tradition, 
               heritage, and the skilled hands of indigenous artisans.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
@@ -104,17 +104,17 @@ export default function AboutPage() {
             <div>
               <Badge variant="outline" className="mb-4">Our Mission</Badge>
               <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-                Bringing Tribal <span className="text-primary">Heritage</span> to the World
+                Bringing <span className="text-primary">Tribal Fashion</span> to the World
               </h2>
               <p className="text-muted-foreground leading-relaxed mb-4">
-                HillCart was founded with a simple yet powerful mission: to connect the world 
-                with the authentic tribal heritage of Manipur's hill communities. We believe that 
+                HillVogue was founded with a simple yet powerful mission: to connect the world 
+                with the authentic tribal fashion of Manipur's hill communities. We believe that 
                 every handcrafted piece carries a story worth sharing.
               </p>
               <p className="text-muted-foreground leading-relaxed">
                 By creating a platform for tribal artisans, we aim to preserve traditional 
                 craftsmanship, support indigenous communities, and share the beauty of 
-                Northeast India's rich cultural tapestry.
+                Northeast India's rich cultural tapestry with the fashion world.
               </p>
               <div className="mt-6 flex flex-wrap gap-6">
                 <div>
@@ -135,8 +135,8 @@ export default function AboutPage() {
               <div className="aspect-square bg-gradient-to-br from-primary/20 to-accent/20 rounded-2xl flex items-center justify-center p-8">
                 <div className="text-center">
                   <Heart className="h-24 w-24 text-primary/40 mx-auto mb-4" />
-                  <p className="text-lg font-semibold text-foreground">"Crafted by Tradition, Woven with Love"</p>
-                  <p className="text-sm text-muted-foreground">— HillCart Philosophy</p>
+                  <p className="text-lg font-semibold text-foreground">"Crafted by Tradition, Designed for Vogue"</p>
+                  <p className="text-sm text-muted-foreground">— HillVogue Philosophy</p>
                 </div>
               </div>
             </div>
@@ -153,7 +153,7 @@ export default function AboutPage() {
               Our Core <span className="text-primary">Values</span>
             </h2>
             <p className="text-muted-foreground">
-              These principles guide everything we do at HillCart, from sourcing to delivery.
+              These principles guide everything we do at HillVogue, from sourcing to delivery.
             </p>
           </div>
 
@@ -181,7 +181,7 @@ export default function AboutPage() {
           <div className="text-center max-w-2xl mx-auto mb-12">
             <Badge variant="outline" className="mb-4">Our Journey</Badge>
             <h2 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
-              The HillCart <span className="text-primary">Story</span>
+              The HillVogue <span className="text-primary">Story</span>
             </h2>
             <p className="text-muted-foreground">
               How we started and where we're headed.
@@ -269,7 +269,7 @@ export default function AboutPage() {
               </h2>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
                 Support authentic tribal craftsmanship and be part of preserving 
-                Manipur's rich cultural heritage.
+                Manipur's rich cultural heritage with HillVogue.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/shop">
