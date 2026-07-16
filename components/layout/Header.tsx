@@ -118,11 +118,11 @@ export default function Header() {
             <Link
               className="flex items-center gap-2 text-2xl tracking-tight text-gray-900 hover:text-gray-700 transition-colors"
               href="/"
-              aria-label="HillCart Home"
+              aria-label="HillVogue Home"
             >
               <Image
                 src="/images/Rongmei-New-2023.svg"
-                alt="HillCart Logo"
+                alt="HillVogue Logo"
                 width={40}
                 height={40}
                 className="object-contain"
@@ -130,7 +130,7 @@ export default function Header() {
                 onError={() => setImageError(true)}
               />
               <span className="whitespace-nowrap">
-                Hill<span className="text-primary">Cart</span>
+                Hill<span className="text-primary">Vogue</span>
               </span>
             </Link>
 

@@ -71,23 +71,23 @@ export default function Footer() {
               <Link
                 className="flex items-center gap-2 text-2xl tracking-tight text-gray-900 hover:text-gray-700 transition-colors"
                 href="/"
-                aria-label="HillCart Home"
+                aria-label="HillVogue Home"
               >
                 <Image
                   src="/images/Rongmei-New-2023.svg"
-                  alt="HillCart Logo"
+                  alt="HillVogue Logo"
                   width={32}
                   height={32}
                   className="object-contain"
                 />
                 <span className="whitespace-nowrap">
-                  Hill<span className="text-primary">Cart</span>
+                  Hill<span className="text-primary">Vogue</span>
                 </span>
               </Link>
               <p className="text-muted-foreground mb-6 max-w-sm">
-                Authentic hill tribal products from the heart of Manipur. 
-                Each piece tells a story of our rich heritage, handcrafted 
-                with love by the hill tribes of Northeast India.
+                HillVogue brings you premium tribal fashion from the heart of Manipur. 
+                Where hill heritage meets modern style. Each piece tells a story of 
+                tradition and elegance.
               </p>
 
               <div className="space-y-3">
@@ -101,7 +101,7 @@ export default function Footer() {
                 </div>
                 <div className="flex items-center gap-3 text-sm text-muted-foreground">
                   <Mail className="h-4 w-4 text-primary" />
-                  <span>hello@hillcart.com</span>
+                  <span>hello@hillvogue.com</span>
                 </div>
               </div>
 
@@ -151,7 +151,7 @@ export default function Footer() {
 
         <div className="py-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <span>© 2025 HillCart™. Made with Love. All Rights Reserved.</span>
+            <span>© 2025 HillVogue™. Made with Love. All Rights Reserved.</span>
           </div>
 
           <div className="flex items-center gap-6 text-sm">

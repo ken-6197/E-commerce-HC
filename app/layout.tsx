@@ -12,9 +12,16 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Bloom E-Commerce Template",
+  title: "HillVogue - Where hill heritage meets modern fashion",
   description:
-    "Discover a wide selection of trendy clothes, shoes and accessories on Bloom E-Commerce. Enjoy fast delivery and free returns. Shop now!",
+    "Discover premium tribal fashion from Manipur's hill tribes. Authentic traditional attire, handcrafted jewelry, and ethnic accessories. Where hill heritage meets modern vogue.",
+  keywords: "HillVogue, tribal fashion, Manipur, traditional attire, ethnic wear, handcrafted jewelry, hill tribes",
+  openGraph: {
+    title: "HillVogue - Where hill heritage meets modern fashion",
+    description: "Discover premium tribal fashion from Manipur's hill tribes.",
+    type: "website",
+    url: "https://hillvogue.vercel.app",
+  },
 };
 
 export default function RootLayout({
