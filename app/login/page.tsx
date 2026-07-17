@@ -36,9 +36,11 @@ export default function LoginPage() {
     }
 
     if (data.user) {
+      // Save user data from Supabase metadata
       localStorage.setItem("isLoggedIn", "true");
       localStorage.setItem("userEmail", data.user.email || "");
       localStorage.setItem("userName", data.user.user_metadata?.full_name || "");
+      localStorage.setItem("userPhone", data.user.user_metadata?.phone || "");
       router.push("/");
     }
 
@@ -82,7 +84,7 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder=""
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-12 py-6 text-base"
@@ -108,7 +110,7 @@ export default function LoginPage() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
+                  placeholder=""
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="pl-12 pr-12 py-6 text-base"

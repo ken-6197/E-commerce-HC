@@ -71,12 +71,13 @@ export default function AdminPage() {
           return;
         }
         
-        // Check if user has admin role in metadata
         const isAdmin = user.user_metadata?.role === 'admin';
         
         if (isAdmin) {
           setIsAdmin(true);
-          await Promise.all([fetchProducts(), fetchOrders(), fetchUsers()]);
+          await fetchProducts();
+          await fetchOrders();
+          await fetchUsers();
         } else {
           router.push("/");
         }
@@ -113,12 +114,14 @@ export default function AdminPage() {
 
   const fetchUsers = async () => {
     try {
-      const { data, error } = await supabase.auth.admin.listUsers();
-      if (error) {
-        console.error("Error fetching users:", error);
-        return;
+      const res = await fetch("/api/admin/users");
+      if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.error || "Failed to fetch users");
       }
-      const mappedUsers = data?.users?.map((user: any) => ({
+      const data = await res.json();
+      
+      const mappedUsers = data.map((user: any) => ({
         id: user.id,
         email: user.email || "No email",
         user_metadata: {
@@ -126,10 +129,11 @@ export default function AdminPage() {
           role: user.user_metadata?.role || "",
         },
         created_at: user.created_at,
-      })) || [];
+      }));
       setUsers(mappedUsers);
     } catch (error) {
       console.error("Error fetching users:", error);
+      setUsers([]);
     }
   };
 
@@ -260,7 +264,6 @@ export default function AdminPage() {
           </Button>
         </div>
 
-        {/* Tabs */}
         <div className="flex gap-2 mb-8 overflow-x-auto">
           {tabs.map((tab) => (
             <Button
@@ -278,7 +281,6 @@ export default function AdminPage() {
           ))}
         </div>
 
-        {/* Products Tab */}
         {activeTab === "products" && (
           <>
             <Card className="mb-8">
@@ -418,7 +420,6 @@ export default function AdminPage() {
           </>
         )}
 
-        {/* Orders Tab */}
         {activeTab === "orders" && (
           <Card>
             <CardHeader>
@@ -499,7 +500,6 @@ export default function AdminPage() {
           </Card>
         )}
 
-        {/* Users Tab */}
         {activeTab === "users" && (
           <Card>
             <CardHeader>

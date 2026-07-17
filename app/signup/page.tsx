@@ -41,13 +41,14 @@ export default function SignUpPage() {
       return;
     }
 
+    // Save phone to Supabase metadata
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
         data: {
           full_name: name,
-          phone: phone,
+          phone: phone || "",  // Save phone even if empty
         },
       },
     });

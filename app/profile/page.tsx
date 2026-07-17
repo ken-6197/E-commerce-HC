@@ -58,9 +58,10 @@ export default function ProfilePage() {
       setUser(user);
       setIsLoggedIn(true);
 
-      const name = user.user_metadata?.full_name || localStorage.getItem("userName") || "";
-      const email = user.email || localStorage.getItem("userEmail") || "";
-      const phone = localStorage.getItem("userPhone") || "+91 9233661750";
+      // Get data from Supabase metadata
+      const name = user.user_metadata?.full_name || "";
+      const email = user.email || "";
+      const phone = user.user_metadata?.phone || "";
       const address = localStorage.getItem("userAddress") || "Imphal, Manipur, India";
 
       const savedData = { name, email, phone, address };
@@ -87,7 +88,21 @@ export default function ProfilePage() {
     setFormData(userData);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    // Update Supabase metadata
+    const { error } = await supabase.auth.updateUser({
+      data: {
+        full_name: formData.name,
+        phone: formData.phone,
+      },
+    });
+
+    if (error) {
+      alert("Failed to update profile: " + error.message);
+      return;
+    }
+
+    // Update localStorage
     localStorage.setItem("userName", formData.name);
     localStorage.setItem("userEmail", formData.email);
     localStorage.setItem("userPhone", formData.phone);
@@ -95,6 +110,7 @@ export default function ProfilePage() {
 
     setUserData(formData);
     setIsEditing(false);
+    alert("Profile updated successfully!");
   };
 
   const handleCancel = () => {
@@ -203,7 +219,6 @@ export default function ProfilePage() {
         <div className="grid lg:grid-cols-4 gap-6">
           {/* Sidebar */}
           <div className="lg:col-span-1 space-y-4">
-            {/* Profile Card */}
             <Card className="border-border bg-background/80">
               <CardContent className="p-6 text-center">
                 <div className="w-20 h-20 rounded-full bg-primary/10 mx-auto flex items-center justify-center mb-3">
@@ -237,7 +252,6 @@ export default function ProfilePage() {
               </CardContent>
             </Card>
 
-            {/* Quick Links */}
             <Card className="border-border bg-background/80">
               <CardContent className="p-4 space-y-2">
                 <button
@@ -260,7 +274,6 @@ export default function ProfilePage() {
 
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-6">
-            {/* Greeting */}
             <Card className="border-border bg-background/80">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
@@ -281,7 +294,6 @@ export default function ProfilePage() {
                   </Button>
                 </div>
 
-                {/* Edit Profile Form */}
                 {isEditing && (
                   <div className="mt-6 p-4 border border-border rounded-xl space-y-4">
                     <h3 className="font-medium text-foreground">Edit Your Details</h3>
@@ -343,7 +355,6 @@ export default function ProfilePage() {
               </CardContent>
             </Card>
 
-            {/* Menu Grid */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {menuItems.map((item, index) => (
                 <button
@@ -371,7 +382,6 @@ export default function ProfilePage() {
               ))}
             </div>
 
-            {/* Settings */}
             <Card className="border-border bg-background/80">
               <CardContent className="p-4">
                 <h3 className="text-sm font-semibold text-foreground mb-3 px-2">
@@ -395,7 +405,6 @@ export default function ProfilePage() {
               </CardContent>
             </Card>
 
-            {/* Recent Orders Placeholder */}
             <Card className="border-border bg-background/80">
               <CardContent className="p-6 text-center">
                 <ShoppingBag className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
