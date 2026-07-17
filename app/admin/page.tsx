@@ -98,8 +98,24 @@ export default function AdminPage() {
   };
 
   const fetchUsers = async () => {
-    const { data } = await supabase.auth.admin.listUsers();
-    setUsers(data?.users || []);
+    try {
+      const { data, error } = await supabase.auth.admin.listUsers();
+      if (error) {
+        console.error("Error fetching users:", error);
+        return;
+      }
+      const mappedUsers = data?.users?.map((user: any) => ({
+        id: user.id,
+        email: user.email || "No email",
+        user_metadata: {
+          full_name: user.user_metadata?.full_name || "",
+        },
+        created_at: user.created_at,
+      })) || [];
+      setUsers(mappedUsers);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
