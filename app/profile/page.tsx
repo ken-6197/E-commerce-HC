@@ -1,9 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -14,13 +12,19 @@ import {
   Phone,
   MapPin,
   Edit,
-  Save,
   LogOut,
   Package,
   Heart,
   Shield,
   Crown,
   Truck,
+  ChevronRight,
+  Gift,
+  Star,
+  CreditCard,
+  ShoppingBag,
+  Settings,
+  HelpCircle,
 } from "lucide-react";
 
 export default function ProfilePage() {
@@ -41,7 +45,6 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
-    // Check if user is logged in
     const loggedIn = localStorage.getItem("isLoggedIn") === "true";
     const name = localStorage.getItem("userName") || "";
     const email = localStorage.getItem("userEmail") || "";
@@ -51,7 +54,6 @@ export default function ProfilePage() {
       return;
     }
 
-    // Load user data from localStorage
     const savedData = {
       name: localStorage.getItem("userName") || "",
       email: localStorage.getItem("userEmail") || "",
@@ -70,7 +72,6 @@ export default function ProfilePage() {
   };
 
   const handleSave = () => {
-    // Save updated data to localStorage
     localStorage.setItem("userName", formData.name);
     localStorage.setItem("userEmail", formData.email);
     localStorage.setItem("userPhone", formData.phone);
@@ -99,11 +100,79 @@ export default function ProfilePage() {
     router.push("/");
   };
 
-  const stats = [
-    { icon: Package, label: "Orders", value: "12" },
-    { icon: Heart, label: "Wishlist", value: "5" },
-    { icon: Shield, label: "Member Since", value: "2025" },
-    { icon: Crown, label: "Loyalty Points", value: "450" },
+  const menuItems = [
+    {
+      icon: Package,
+      label: "My Orders",
+      href: "/orders",
+      badge: "12",
+      action: () => router.push("/orders"),
+    },
+    {
+      icon: Heart,
+      label: "My Wishlist",
+      href: "/wishlist",
+      badge: "5",
+      action: () => router.push("/wishlist"),
+    },
+    {
+      icon: Truck,
+      label: "Track Order",
+      href: "/track",
+      action: () => router.push("/track"),
+    },
+    {
+      icon: CreditCard,
+      label: "Payments",
+      href: "/payments",
+      action: () => router.push("/payments"),
+    },
+    {
+      icon: Gift,
+      label: "My Coupons",
+      href: "/coupons",
+      badge: "3",
+      action: () => router.push("/coupons"),
+    },
+    {
+      icon: Star,
+      label: "My Reviews",
+      href: "/reviews",
+      action: () => router.push("/reviews"),
+    },
+  ];
+
+  const settingsItems = [
+    {
+      icon: User,
+      label: "Profile Information",
+      href: "/profile",
+      action: () => setIsEditing(!isEditing),
+    },
+    {
+      icon: MapPin,
+      label: "Manage Addresses",
+      href: "/addresses",
+      action: () => router.push("/addresses"),
+    },
+    {
+      icon: Shield,
+      label: "Privacy & Security",
+      href: "/privacy",
+      action: () => router.push("/privacy"),
+    },
+    {
+      icon: Settings,
+      label: "Account Settings",
+      href: "/settings",
+      action: () => router.push("/settings"),
+    },
+    {
+      icon: HelpCircle,
+      label: "Help Center",
+      href: "/contact",
+      action: () => router.push("/contact"),
+    },
   ];
 
   if (!isLoggedIn) {
@@ -111,167 +180,237 @@ export default function ProfilePage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Redirecting...</p>
+          <p className="text-muted-foreground">Just a moment...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 to-accent/5 px-4 py-12">
-      <div className="container max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-foreground">My Profile</h1>
-            <p className="text-muted-foreground">Manage your account details and preferences</p>
-          </div>
-          <div className="flex gap-3 mt-4 md:mt-0">
-            {isEditing ? (
-              <>
-                <Button variant="outline" onClick={handleCancel}>
-                  Cancel
+    <div className="min-h-screen bg-muted/20">
+      <div className="container max-w-6xl mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-4 gap-6">
+          {/* Sidebar */}
+          <div className="lg:col-span-1 space-y-4">
+            {/* Profile Card */}
+            <Card className="border-border bg-background/80">
+              <CardContent className="p-6 text-center">
+                <div className="w-20 h-20 rounded-full bg-primary/10 mx-auto flex items-center justify-center mb-3">
+                  <User className="h-10 w-10 text-primary" />
+                </div>
+                <h2 className="font-semibold text-foreground text-lg">
+                  {userData.name || "Guest"}
+                </h2>
+                <p className="text-sm text-muted-foreground truncate">
+                  {userData.email}
+                </p>
+                <Separator className="my-4" />
+                <div className="text-left space-y-3 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Orders</span>
+                    <span className="font-medium">12</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Wishlist</span>
+                    <span className="font-medium">5</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Member Since</span>
+                    <span className="font-medium">2025</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Loyalty Points</span>
+                    <span className="font-medium text-primary">450</span>
+                  </div>
+                </div>
+                <Separator className="my-4" />
+                <Button
+                  variant="ghost"
+                  className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={handleLogout}
+                >
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
                 </Button>
-                <Button onClick={handleSave} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                  <Save className="h-4 w-4 mr-2" />
-                  Save Changes
-                </Button>
-              </>
-            ) : (
-              <Button onClick={handleEdit} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Profile
-              </Button>
-            )}
-          </div>
-        </div>
-
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          {stats.map((stat, index) => (
-            <Card key={index} className="border-primary/10">
-              <CardContent className="p-4 text-center">
-                <stat.icon className="h-6 w-6 text-primary mx-auto mb-2" />
-                <p className="text-2xl font-bold">{stat.value}</p>
-                <p className="text-xs text-muted-foreground">{stat.label}</p>
               </CardContent>
             </Card>
-          ))}
+
+            {/* Quick Links */}
+            <Card className="border-border bg-background/80">
+              <CardContent className="p-4 space-y-2">
+                <button
+                  onClick={() => router.push("/track")}
+                  className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors text-sm"
+                >
+                  <span>Track Order</span>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </button>
+                <button
+                  onClick={() => router.push("/contact")}
+                  className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors text-sm"
+                >
+                  <span>Help Center</span>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Main Content */}
+          <div className="lg:col-span-3 space-y-6">
+            {/* Greeting */}
+            <Card className="border-border bg-background/80">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Hello,</p>
+                    <h1 className="text-2xl font-bold text-foreground">
+                      {userData.name || "Guest"}
+                    </h1>
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2"
+                    onClick={handleEdit}
+                  >
+                    <Edit className="h-4 w-4" />
+                    Edit Profile
+                  </Button>
+                </div>
+
+                {/* Edit Profile Form */}
+                {isEditing && (
+                  <div className="mt-6 p-4 border border-border rounded-xl space-y-4">
+                    <h3 className="font-medium text-foreground">Edit Your Details</h3>
+                    <div className="grid md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-sm text-muted-foreground">Full Name</label>
+                        <input
+                          type="text"
+                          name="name"
+                          value={formData.name}
+                          onChange={handleChange}
+                          className="w-full mt-1 px-4 py-2 border border-border rounded-lg bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm text-muted-foreground">Email</label>
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email}
+                          onChange={handleChange}
+                          className="w-full mt-1 px-4 py-2 border border-border rounded-lg bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm text-muted-foreground">Phone</label>
+                        <input
+                          type="tel"
+                          name="phone"
+                          value={formData.phone}
+                          onChange={handleChange}
+                          className="w-full mt-1 px-4 py-2 border border-border rounded-lg bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-sm text-muted-foreground">Address</label>
+                        <input
+                          type="text"
+                          name="address"
+                          value={formData.address}
+                          onChange={handleChange}
+                          className="w-full mt-1 px-4 py-2 border border-border rounded-lg bg-background/50 focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex gap-3">
+                      <Button
+                        className="bg-primary text-white hover:bg-primary/90"
+                        onClick={handleSave}
+                      >
+                        Save Changes
+                      </Button>
+                      <Button variant="outline" onClick={handleCancel}>
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Menu Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {menuItems.map((item, index) => (
+                <button
+                  key={index}
+                  onClick={item.action}
+                  className="p-4 bg-background/80 rounded-xl border border-border hover:border-primary/30 hover:shadow-md transition-all group text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                      <item.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-foreground">
+                        {item.label}
+                      </p>
+                      {item.badge && (
+                        <p className="text-xs text-muted-foreground">
+                          {item.badge} items
+                        </p>
+                      )}
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Settings */}
+            <Card className="border-border bg-background/80">
+              <CardContent className="p-4">
+                <h3 className="text-sm font-semibold text-foreground mb-3 px-2">
+                  Account Settings
+                </h3>
+                <div className="space-y-1">
+                  {settingsItems.map((item, index) => (
+                    <button
+                      key={index}
+                      onClick={item.action}
+                      className="w-full flex items-center justify-between p-3 rounded-lg hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <item.icon className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm">{item.label}</span>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Recent Orders Placeholder */}
+            <Card className="border-border bg-background/80">
+              <CardContent className="p-6 text-center">
+                <ShoppingBag className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
+                <p className="font-medium text-foreground">No orders yet</p>
+                <p className="text-sm text-muted-foreground">
+                  Start shopping to see your orders here
+                </p>
+                <Button
+                  className="mt-4 bg-primary text-white hover:bg-primary/90"
+                  onClick={() => router.push("/shop")}
+                >
+                  Start Shopping
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
-
-        {/* Profile Details */}
-        <Card className="border-primary/10">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5 text-primary" />
-              Personal Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="name"
-                    name="name"
-                    value={isEditing ? formData.name : userData.name}
-                    onChange={handleChange}
-                    disabled={!isEditing}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={isEditing ? formData.email : userData.email}
-                    onChange={handleChange}
-                    disabled={!isEditing}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="phone"
-                    name="phone"
-                    type="tel"
-                    value={isEditing ? formData.phone : userData.phone}
-                    onChange={handleChange}
-                    disabled={!isEditing}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="address"
-                    name="address"
-                    value={isEditing ? formData.address : userData.address}
-                    onChange={handleChange}
-                    disabled={!isEditing}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="flex flex-col sm:flex-row gap-3 justify-end">
-              <Button asChild variant="outline" className="w-full sm:w-auto">
-                <Link href="/track">
-                  <Truck className="h-4 w-4 mr-2" />
-                  Track Order
-                </Link>
-              </Button>
-              <Button
-                variant="destructive"
-                onClick={handleLogout}
-                className="w-full sm:w-auto"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Order History Placeholder */}
-        <Card className="border-primary/10 mt-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5 text-primary" />
-              Recent Orders
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8 text-muted-foreground">
-              <Package className="h-12 w-12 mx-auto mb-3 text-muted-foreground/30" />
-              <p>No orders yet</p>
-              <p className="text-sm">Start shopping to see your orders here</p>
-              <Button className="mt-4 bg-primary text-primary-foreground hover:bg-primary/90" asChild>
-                <Link href="/shop">Browse Products</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

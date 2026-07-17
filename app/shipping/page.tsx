@@ -123,24 +123,6 @@ export default function ShippingPage() {
 
               <Separator />
 
-              {/* Tracking */}
-              <div className="space-y-3">
-                <h2 className="text-2xl font-semibold text-foreground">Track Your Order</h2>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  Once your order is shipped, you will receive a tracking number via email. 
-                  You can use this number to track your package in real-time on our courier partner's website.
-                </p>
-                <div className="p-4 rounded-xl bg-primary/5 border border-primary/10">
-                  <p className="text-sm text-muted-foreground">
-                    Need help? Contact us at{" "}
-                    <span className="text-primary">hello@hillvogue.com</span> or call{" "}
-                    <span className="text-primary">+91 9233661750</span>
-                  </p>
-                </div>
-              </div>
-
-              <Separator />
-
               {/* Footer Note */}
               <div className="text-center text-xs text-muted-foreground space-y-2">
                 <p>© 2026 HillVogue. All rights reserved.</p>

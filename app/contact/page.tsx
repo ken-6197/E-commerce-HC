@@ -10,7 +10,6 @@ import {
   MapPin,
   Phone,
   Send,
-  Sparkles,
   ArrowRight,
   Clock,
   Instagram,
@@ -24,7 +23,6 @@ export default function Contact() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    subject: "",
     message: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -45,7 +43,7 @@ export default function Contact() {
     setIsSubmitted(true);
     setTimeout(() => {
       setIsSubmitted(false);
-      setFormData({ name: "", email: "", subject: "", message: "" });
+      setFormData({ name: "", email: "", message: "" });
     }, 3000);
   };
 
@@ -86,7 +84,6 @@ export default function Contact() {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <Badge className="mb-6 bg-primary/10 text-primary border-primary/20 px-4 py-1.5 text-sm">
-            <Sparkles className="h-3.5 w-3.5 mr-2" />
             Get in Touch
           </Badge>
           <h1 className="text-4xl lg:text-5xl font-bold text-foreground mb-4">
@@ -147,21 +144,6 @@ export default function Contact() {
                   </div>
 
                   <div className="space-y-2">
-                    <label htmlFor="subject" className="text-sm font-medium text-foreground">
-                      Subject
-                    </label>
-                    <Input
-                      id="subject"
-                      name="subject"
-                      placeholder="What's this about?"
-                      value={formData.subject}
-                      onChange={handleInputChange}
-                      required
-                      className="bg-background/50 border-primary/10 focus:border-primary/30 transition-all"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
                     <label htmlFor="message" className="text-sm font-medium text-foreground">
                       Your Message
                     </label>
@@ -169,7 +151,7 @@ export default function Contact() {
                       id="message"
                       name="message"
                       placeholder="Tell us how we can help..."
-                      rows={5}
+                      rows={6}
                       value={formData.message}
                       onChange={handleInputChange}
                       required
@@ -211,7 +193,6 @@ export default function Contact() {
             <Card className="border-primary/10 shadow-xl backdrop-blur-sm bg-card/50">
               <CardContent className="p-6 space-y-4">
                 <h3 className="font-semibold text-foreground flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
                   Connect With Us
                 </h3>
                 {contactMethods.map((method, index) => (

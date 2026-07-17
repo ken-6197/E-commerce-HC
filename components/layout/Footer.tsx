@@ -75,18 +75,29 @@ export default function Footer() {
               </p>
 
               <div className="space-y-1.5">
-                <div className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                <Link
+                  href="https://maps.google.com/?q=Imphal+Manipur+India"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+                >
                   <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
                   <span>Imphal, Manipur, India</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                </Link>
+                <a
+                  href="tel:+919233661750"
+                  className="flex items-center gap-2.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+                >
                   <Phone className="h-3.5 w-3.5 text-primary shrink-0" />
                   <span>+91 9233661750</span>
-                </div>
-                <div className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                </a>
+                <a
+                  href="mailto:hello@hillvogue.com"
+                  className="flex items-center gap-2.5 text-xs text-muted-foreground hover:text-primary transition-colors"
+                >
                   <Mail className="h-3.5 w-3.5 text-primary shrink-0" />
                   <span>hello@hillvogue.com</span>
-                </div>
+                </a>
               </div>
 
               <div className="flex gap-2 mt-4">
@@ -137,7 +148,7 @@ export default function Footer() {
 
         <div className="py-4 flex flex-col md:flex-row justify-center items-center gap-3">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <span>© 2026 HillVogue™. Made with Love. All Rights Reserved.</span>
+            <span>© 2026 HillVogue™.All Rights Reserved.</span>
           </div>
         </div>
       </div>
