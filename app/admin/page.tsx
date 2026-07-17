@@ -19,11 +19,15 @@ interface Product {
   category: string;
 }
 
+// Admin emails - only these users can access
+const ADMIN_EMAILS = ["panmeikenneth@gmail.com"];
+
 export default function AdminPage() {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -35,22 +39,27 @@ export default function AdminPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    const checkAdmin = async () => {
+    const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser();
+      
       if (!user) {
         router.push("/login");
+        setCheckingAuth(false);
         return;
       }
       
-      // Check if user is admin (you can hardcode your email or use a role system)
-      if (user.email === "panmeikenneth@gmail.com") {
+      // Check if user is admin
+      if (user.email && ADMIN_EMAILS.includes(user.email)) {
         setIsAdmin(true);
         fetchProducts();
       } else {
+        // Not admin - redirect to home
         router.push("/");
       }
+      
+      setCheckingAuth(false);
     };
-    checkAdmin();
+    checkAuth();
   }, [router]);
 
   const fetchProducts = async () => {
@@ -78,14 +87,12 @@ export default function AdminPage() {
 
     let error;
     if (editingProduct) {
-      // Update existing product
       const { error: updateError } = await supabase
         .from("products")
         .update(productData)
         .eq("id", editingProduct.id);
       error = updateError;
     } else {
-      // Add new product
       const { error: insertError } = await supabase
         .from("products")
         .insert(productData);
@@ -133,7 +140,8 @@ export default function AdminPage() {
     setFormData({ name: "", price: "", image: "", description: "", category: "" });
   };
 
-  if (!isAdmin) {
+  // Show loading state while checking auth
+  if (checkingAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -144,10 +152,20 @@ export default function AdminPage() {
     );
   }
 
+  // Don't render anything if not admin (will redirect)
+  if (!isAdmin) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-muted/20 px-4 py-12">
       <div className="container max-w-6xl mx-auto">
-        <h1 className="text-3xl font-bold text-foreground mb-8">Admin Panel</h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold text-foreground">Admin Panel</h1>
+          <Button variant="outline" onClick={() => router.push("/")}>
+            ← Back to Site
+          </Button>
+        </div>
 
         {/* Add/Edit Form */}
         <Card className="mb-8">
