@@ -7,6 +7,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "../ui/button";
+import { supabase } from "@/lib/supabase";
 
 export default function Header() {
   const { cart } = useCart();
@@ -19,19 +20,28 @@ export default function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userName, setUserName] = useState("");
+  const [user, setUser] = useState<any>(null);
   const pathname = usePathname();
   const userMenuRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Check login status on mount and when pathname changes
+  // Check login status from Supabase on mount
   useEffect(() => {
-    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
-    const name = localStorage.getItem("userName") || "";
-    setIsLoggedIn(loggedIn);
-    setUserName(name);
-  }, [pathname]);
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user || null);
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -77,15 +87,12 @@ export default function Header() {
     setIsUserMenuOpen((prev) => !prev);
   }, []);
 
-  const handleLogout = useCallback(() => {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("userEmail");
-    localStorage.removeItem("userName");
-    setIsLoggedIn(false);
-    setUserName("");
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
     setIsUserMenuOpen(false);
     router.push("/");
-  }, [router]);
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,6 +110,10 @@ export default function Header() {
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
   ];
+
+  // Get user name
+  const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User";
+  const isLoggedIn = !!user;
 
   return (
     <header
@@ -226,7 +237,7 @@ export default function Header() {
                   {isLoggedIn ? (
                     <>
                       <div className="px-4 py-2 text-sm font-medium text-gray-900 border-b border-gray-200">
-                        👋 Welcome, {userName || "User"}!
+                        👋 Welcome, {userName}!
                       </div>
                       <Link
                         href="/profile"
@@ -331,7 +342,7 @@ export default function Header() {
               {isLoggedIn ? (
                 <>
                   <div className="text-sm font-medium px-3 py-2 text-gray-900">
-                    👋 Welcome, {userName || "User"}!
+                    👋 Welcome, {userName}!
                   </div>
                   <Link
                     href="/profile"

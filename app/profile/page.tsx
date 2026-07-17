@@ -12,7 +12,6 @@ import {
   Phone,
   MapPin,
   Edit,
-  LogOut,
   Package,
   Heart,
   Shield,
@@ -26,11 +25,14 @@ import {
   Settings,
   HelpCircle,
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function ProfilePage() {
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [user, setUser] = useState<any>(null);
   const [userData, setUserData] = useState({
     name: "",
     email: "",
@@ -45,25 +47,39 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
-    const loggedIn = localStorage.getItem("isLoggedIn") === "true";
-    const name = localStorage.getItem("userName") || "";
-    const email = localStorage.getItem("userEmail") || "";
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        router.push("/login");
+        return;
+      }
 
-    if (!loggedIn) {
-      router.push("/login");
-      return;
-    }
+      setUser(user);
+      setIsLoggedIn(true);
 
-    const savedData = {
-      name: localStorage.getItem("userName") || "",
-      email: localStorage.getItem("userEmail") || "",
-      phone: localStorage.getItem("userPhone") || "+91 9233661750",
-      address: localStorage.getItem("userAddress") || "Imphal, Manipur, India",
+      const name = user.user_metadata?.full_name || localStorage.getItem("userName") || "";
+      const email = user.email || localStorage.getItem("userEmail") || "";
+      const phone = localStorage.getItem("userPhone") || "+91 9233661750";
+      const address = localStorage.getItem("userAddress") || "Imphal, Manipur, India";
+
+      const savedData = { name, email, phone, address };
+      setUserData(savedData);
+      setFormData(savedData);
+      setLoading(false);
     };
 
-    setUserData(savedData);
-    setFormData(savedData);
-    setIsLoggedIn(true);
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (!session?.user) {
+          router.push("/login");
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
   }, [router]);
 
   const handleEdit = () => {
@@ -89,15 +105,6 @@ export default function ProfilePage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    localStorage.removeItem("userEmail");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("userPhone");
-    localStorage.removeItem("userAddress");
-    router.push("/");
   };
 
   const menuItems = [
@@ -175,15 +182,19 @@ export default function ProfilePage() {
     },
   ];
 
-  if (!isLoggedIn) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Just a moment...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
       </div>
     );
+  }
+
+  if (!isLoggedIn) {
+    return null;
   }
 
   return (
@@ -223,15 +234,6 @@ export default function ProfilePage() {
                     <span className="font-medium text-primary">450</span>
                   </div>
                 </div>
-                <Separator className="my-4" />
-                <Button
-                  variant="ghost"
-                  className="w-full text-red-600 hover:text-red-700 hover:bg-red-50"
-                  onClick={handleLogout}
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </Button>
               </CardContent>
             </Card>
 

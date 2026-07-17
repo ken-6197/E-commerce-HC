@@ -8,7 +8,8 @@ import { Check, Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { FaFacebook, FaGoogle, FaInstagram } from "react-icons/fa";
+import { supabase } from "@/lib/supabase";
+import { FaFacebook, FaGoogle } from "react-icons/fa";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -39,31 +40,50 @@ export default function SignUpPage() {
       return;
     }
 
-    // Simulate signup - Replace with actual authentication
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: name,
+        },
+      },
+    });
 
-    // For demo purposes, accept any valid input
-    if (name && email && password) {
+    if (error) {
+      setError(error.message);
+      setIsLoading(false);
+      return;
+    }
+
+    if (data.user) {
       setSuccess(true);
       localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userEmail", email);
+      localStorage.setItem("userEmail", data.user.email || "");
       localStorage.setItem("userName", name);
       setTimeout(() => {
         router.push("/");
       }, 1500);
-    } else {
-      setError("Please fill in all fields");
     }
 
     setIsLoading(false);
   };
 
-  const handleSocialLogin = (provider: string) => {
-    console.log(`Signing up with ${provider}`);
+  const handleSocialLogin = async (provider: "google" | "facebook") => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      setError(error.message);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/5 px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-primary/5 to-accent/5 px-4 py-12">
       <Card className="w-full max-w-lg shadow-xl border-primary/10">
         <CardHeader className="text-center space-y-2 pt-8">
           <CardTitle className="text-4xl font-bold">Create Account</CardTitle>
@@ -205,25 +225,18 @@ export default function SignUpPage() {
 
           <div className="flex gap-6 justify-center">
             <button
-              onClick={() => handleSocialLogin("Google")}
+              onClick={() => handleSocialLogin("google")}
               className="p-3 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Sign up with Google"
             >
               <FaGoogle className="h-8 w-8 text-[#4285F4]" />
             </button>
             <button
-              onClick={() => handleSocialLogin("Facebook")}
+              onClick={() => handleSocialLogin("facebook")}
               className="p-3 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Sign up with Facebook"
             >
               <FaFacebook className="h-8 w-8 text-[#1877F2]" />
-            </button>
-            <button
-              onClick={() => handleSocialLogin("Instagram")}
-              className="p-3 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label="Sign up with Instagram"
-            >
-              <FaInstagram className="h-8 w-8 text-[#E4405F]" />
             </button>
           </div>
 

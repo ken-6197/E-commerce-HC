@@ -8,8 +8,10 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function Cart() {
+  const router = useRouter();
   const { cart } = useCart();
   const itemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -47,6 +49,17 @@ export default function Cart() {
         <div className="lg:col-span-1">
           <OrderSummary />
         </div>
+      </div>
+
+      {/* Proceed to Checkout Button */}
+      <div className="mt-8 flex justify-end">
+        <Button
+          size="lg"
+          className="bg-primary text-white hover:bg-primary/90 px-8"
+          onClick={() => router.push("/checkout")}
+        >
+          Proceed to Checkout
+        </Button>
       </div>
 
       <Recommendations />

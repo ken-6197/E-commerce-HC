@@ -8,7 +8,8 @@ import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { FaFacebook, FaGoogle, FaInstagram } from "react-icons/fa";
+import { supabase } from "@/lib/supabase";
+import { FaFacebook, FaGoogle } from "react-icons/fa";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -23,30 +24,42 @@ export default function LoginPage() {
     setIsLoading(true);
     setError("");
 
-    // Simulate login - Replace with actual authentication
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    // For demo purposes, accept any email/password
-    if (email && password) {
-      // Store user session
+    if (error) {
+      setError(error.message);
+      setIsLoading(false);
+      return;
+    }
+
+    if (data.user) {
       localStorage.setItem("isLoggedIn", "true");
-      localStorage.setItem("userEmail", email);
+      localStorage.setItem("userEmail", data.user.email || "");
+      localStorage.setItem("userName", data.user.user_metadata?.full_name || "");
       router.push("/");
-    } else {
-      setError("Please enter both email and password");
     }
 
     setIsLoading(false);
   };
 
-  const handleSocialLogin = (provider: string) => {
-    // Handle social login - Replace with actual OAuth
-    console.log(`Logging in with ${provider}`);
-    // You can add OAuth redirect logic here
+  const handleSocialLogin = async (provider: "google" | "facebook") => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (error) {
+      setError(error.message);
+    }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 to-accent/5 px-4 py-12">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-primary/5 to-accent/5 px-4 py-12">
       <Card className="w-full max-w-lg shadow-xl border-primary/10">
         <CardHeader className="text-center space-y-2 pt-8">
           <CardTitle className="text-4xl font-bold">Welcome Back</CardTitle>
@@ -153,25 +166,18 @@ export default function LoginPage() {
 
           <div className="flex gap-6 justify-center">
             <button
-              onClick={() => handleSocialLogin("Google")}
+              onClick={() => handleSocialLogin("google")}
               className="p-3 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Login with Google"
             >
-              <FaGoogle className="h-8 w-8" />
+              <FaGoogle className="h-8 w-8 text-[#4285F4]" />
             </button>
             <button
-              onClick={() => handleSocialLogin("Facebook")}
+              onClick={() => handleSocialLogin("facebook")}
               className="p-3 rounded-full hover:bg-gray-100 transition-colors"
               aria-label="Login with Facebook"
             >
-              <FaFacebook className="h-8 w-8 text-blue-600" />
-            </button>
-            <button
-              onClick={() => handleSocialLogin("Instagram")}
-              className="p-3 rounded-full hover:bg-gray-100 transition-colors"
-              aria-label="Login with Instagram"
-            >
-              <FaInstagram className="h-8 w-8 text-pink-600" />
+              <FaFacebook className="h-8 w-8 text-[#1877F2]" />
             </button>
           </div>
         </CardContent>
