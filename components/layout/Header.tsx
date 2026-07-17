@@ -114,6 +114,7 @@ export default function Header() {
   // Get user name
   const userName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || "User";
   const isLoggedIn = !!user;
+  const isAdmin = user?.email === "panmeikenneth@gmail.com";
 
   return (
     <header
@@ -253,6 +254,15 @@ export default function Header() {
                       >
                         My Orders
                       </Link>
+                      {isAdmin && (
+                        <Link
+                          href="/admin"
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                          onClick={() => setIsUserMenuOpen(false)}
+                        >
+                          Admin Panel
+                        </Link>
+                      )}
                       <div className="border-t border-gray-200 my-1"></div>
                       <button
                         onClick={handleLogout}
@@ -358,6 +368,15 @@ export default function Header() {
                   >
                     My Orders
                   </Link>
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      onClick={closeMobileMenu}
+                      className="text-sm font-medium py-2 px-3 rounded-lg transition-all text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                    >
+                      Admin Panel
+                    </Link>
+                  )}
                   <button
                     onClick={() => {
                       handleLogout();

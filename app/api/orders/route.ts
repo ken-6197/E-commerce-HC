@@ -3,6 +3,11 @@ import { supabase } from '@/lib/supabase';
 
 export async function POST(request: Request) {
   try {
+    // Check if supabase is initialized
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 });
+    }
+
     const authHeader = request.headers.get('Authorization');
     if (!authHeader) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -19,7 +24,6 @@ export async function POST(request: Request) {
 
     const orderNumber = `HV-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
-    // Create order
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
@@ -36,7 +40,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: orderError.message }, { status: 500 });
     }
 
-    // Create order items
     const orderItems = items.map((item: any) => ({
       order_id: order.id,
       product_id: null,
@@ -62,6 +65,10 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
+      return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 });
+    }
+
     const authHeader = request.headers.get('Authorization');
     if (!authHeader) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -84,7 +91,6 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Get order items for each order
     const ordersWithItems = await Promise.all(orders.map(async (order) => {
       const { data: items } = await supabase
         .from('order_items')
