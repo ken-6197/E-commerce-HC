@@ -30,10 +30,6 @@ export default function StaggerContainer({
     visible: {
       opacity: 1,
       y: 0,
-      transition: {
-        duration: 0.5,
-        ease: [0.22, 1, 0.36, 1],
-      },
     },
   };
 
@@ -45,7 +41,12 @@ export default function StaggerContainer({
       animate="visible"
     >
       {React.Children.map(children, (child) => (
-        <motion.div variants={itemVariants}>{child}</motion.div>
+        <motion.div 
+          variants={itemVariants}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          {child}
+        </motion.div>
       ))}
     </motion.div>
   );
