@@ -34,7 +34,6 @@ export default function Product() {
 
   const product = products.find((p) => p.id === parseInt(productId as string));
 
-  // Format price in Indian Rupees
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -50,9 +49,7 @@ export default function Product() {
 
   const handleAddToCart = async () => {
     setIsAdding(true);
-
     await new Promise((resolve) => setTimeout(resolve, 300));
-
     for (let i = 0; i < quantity; i++) {
       addToCart({
         id: product.id,
@@ -62,10 +59,8 @@ export default function Product() {
         quantity: 1,
       });
     }
-
     setIsAdding(false);
     setJustAdded(true);
-
     setTimeout(() => setJustAdded(false), 2000);
   };
 
@@ -78,7 +73,6 @@ export default function Product() {
       quantity: quantity,
       total: product.price * quantity,
     };
-    
     sessionStorage.setItem('buyNowItem', JSON.stringify(buyNowItem));
     router.push("/buy-now-checkout");
   };
@@ -91,7 +85,7 @@ export default function Product() {
     }
   };
 
-  // Animation variants - Fixed easing
+  // Simplified animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -108,10 +102,6 @@ export default function Product() {
     visible: {
       opacity: 1,
       y: 0,
-      transition: {
-        duration: 0.5,
-        ease: "easeOut",
-      },
     },
   };
 
@@ -120,10 +110,6 @@ export default function Product() {
     visible: {
       opacity: 1,
       scale: 1,
-      transition: {
-        duration: 0.6,
-        ease: "easeOut",
-      },
     },
   };
 
@@ -132,15 +118,15 @@ export default function Product() {
       initial="hidden"
       animate="visible"
       variants={containerVariants}
+      transition={{ duration: 0.5 }}
       className="container mx-auto px-4 sm:px-6 lg:px-8 py-8"
     >
-      <motion.div variants={itemVariants}>
+      <motion.div variants={itemVariants} transition={{ duration: 0.5, delay: 0.1 }}>
         <ProductBreadcrumb />
       </motion.div>
 
       <div className="grid lg:grid-cols-2 gap-12 mb-16">
-        {/* Image Section */}
-        <motion.div variants={imageVariants} className="space-y-4">
+        <motion.div variants={imageVariants} transition={{ duration: 0.6, delay: 0.2 }} className="space-y-4">
           <div className="w-full max-w-[500px] mx-auto flex flex-col items-center px-4">
             <div className="rounded-xl shadow-lg overflow-hidden mb-4 w-full">
               <Image
@@ -156,8 +142,7 @@ export default function Product() {
           </div>
         </motion.div>
 
-        {/* Details Section */}
-        <motion.div variants={itemVariants} className="space-y-6">
+        <motion.div variants={itemVariants} transition={{ duration: 0.5, delay: 0.3 }} className="space-y-6">
           <h1 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
             {product.name}
           </h1>
@@ -301,11 +286,11 @@ export default function Product() {
         </motion.div>
       </div>
 
-      <motion.div variants={itemVariants}>
+      <motion.div variants={itemVariants} transition={{ duration: 0.5, delay: 0.4 }}>
         <Features />
       </motion.div>
 
-      <motion.div variants={itemVariants}>
+      <motion.div variants={itemVariants} transition={{ duration: 0.5, delay: 0.5 }}>
         <RelatedProducts product={product} />
       </motion.div>
     </motion.div>
