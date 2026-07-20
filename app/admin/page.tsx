@@ -6,9 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/lib/supabase";
-import { Loader2, Package, ShoppingBag, Users, Plus, Edit, Trash2, Eye } from "lucide-react";
+import { Loader2, Package, ShoppingBag, Users, Plus, Edit, Trash2, Eye, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 interface Product {
   id: number;
@@ -32,11 +33,12 @@ interface Order {
 interface AppUser {
   id: string;
   email: string;
-  user_metadata: {
-    full_name?: string;
-    role?: string;
-  };
+  full_name: string;
+  phone: string;
+  avatar_url: string;
+  role: string;
   created_at: string;
+  last_sign_in: string;
 }
 
 type TabType = "products" | "orders" | "users";
@@ -75,9 +77,11 @@ export default function AdminPage() {
         
         if (isAdmin) {
           setIsAdmin(true);
-          await fetchProducts();
-          await fetchOrders();
-          await fetchUsers();
+          await Promise.all([
+            fetchProducts(),
+            fetchOrders(),
+            fetchUsers()
+          ]);
         } else {
           router.push("/");
         }
@@ -121,14 +125,17 @@ export default function AdminPage() {
       }
       const data = await res.json();
       
-      const mappedUsers = data.map((user: any) => ({
+      const usersData = Array.isArray(data) ? data : data.users || [];
+      
+      const mappedUsers = usersData.map((user: any) => ({
         id: user.id,
         email: user.email || "No email",
-        user_metadata: {
-          full_name: user.user_metadata?.full_name || "",
-          role: user.user_metadata?.role || "",
-        },
+        full_name: user.user_metadata?.full_name || user.full_name || "",
+        phone: user.user_metadata?.phone || user.phone || "",
+        avatar_url: user.user_metadata?.avatar_url || user.avatar_url || "",
+        role: user.user_metadata?.role || user.role || "user",
         created_at: user.created_at,
+        last_sign_in: user.last_sign_in_at || user.last_sign_in || "",
       }));
       setUsers(mappedUsers);
     } catch (error) {
@@ -231,6 +238,31 @@ export default function AdminPage() {
       cancelled: "bg-red-100 text-red-800",
     };
     return colors[status as keyof typeof colors] || "bg-gray-100 text-gray-800";
+  };
+
+  // Function to get initials for avatar fallback
+  const getInitials = (name: string) => {
+    if (!name) return "U";
+    return name
+      .split(" ")
+      .map(word => word[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  // Function to get a consistent color based on name
+  const getAvatarColor = (name: string) => {
+    const colors = [
+      "bg-red-500", "bg-blue-500", "bg-green-500", "bg-yellow-500", 
+      "bg-purple-500", "bg-pink-500", "bg-indigo-500", "bg-teal-500",
+      "bg-orange-500", "bg-cyan-500", "bg-rose-500", "bg-violet-500"
+    ];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
   };
 
   if (checkingAuth) {
@@ -521,6 +553,8 @@ export default function AdminPage() {
                         <th className="text-left py-3 px-2">#</th>
                         <th className="text-left py-3 px-2">Name</th>
                         <th className="text-left py-3 px-2">Email</th>
+                        <th className="text-left py-3 px-2">Phone</th>
+                        <th className="text-left py-3 px-2">Avatar</th>
                         <th className="text-left py-3 px-2">Role</th>
                         <th className="text-left py-3 px-2">Joined</th>
                       </tr>
@@ -529,12 +563,28 @@ export default function AdminPage() {
                       {users.map((user, index) => (
                         <tr key={user.id} className="border-b hover:bg-muted/30">
                           <td className="py-3 px-2">{index + 1}</td>
-                          <td className="py-3 px-2 font-medium">
-                            {user.user_metadata?.full_name || "N/A"}
-                          </td>
+                          <td className="py-3 px-2 font-medium">{user.full_name || "N/A"}</td>
                           <td className="py-3 px-2">{user.email}</td>
+                          <td className="py-3 px-2">{user.phone || "-"}</td>
                           <td className="py-3 px-2">
-                            {user.user_metadata?.role === "admin" ? (
+                            {user.avatar_url ? (
+                              <div className="w-10 h-10 rounded-full overflow-hidden bg-muted ring-2 ring-primary/20">
+                                <Image
+                                  src={user.avatar_url}
+                                  alt={user.full_name || "User"}
+                                  width={40}
+                                  height={40}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ) : (
+                              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-medium text-sm ${getAvatarColor(user.full_name || user.email)}`}>
+                                {getInitials(user.full_name || user.email)}
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-3 px-2">
+                            {user.role === "admin" ? (
                               <span className="px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                                 Admin
                               </span>
