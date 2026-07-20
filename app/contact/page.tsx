@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { motion } from "framer-motion";
 import {
   Mail,
   MapPin,
@@ -74,15 +75,56 @@ export default function Contact() {
     { icon: Facebook, href: "#", label: "Facebook" },
   ];
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.1,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+      opacity: 1,
+      y: 0,
+    },
+  };
+
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 40 },
+    visible: {
+      opacity: 1,
+      y: 0,
+    },
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={containerVariants}
+      className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden"
+    >
       {/* Decorative Background Elements */}
       <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-bl from-primary/10 to-transparent rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-accent/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-      <div className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+      <motion.div 
+        variants={itemVariants}
+        transition={{ duration: 0.6 }}
+        className="relative container mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24"
+      >
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
+        <motion.div 
+          variants={fadeInUp}
+          transition={{ duration: 0.6 }}
+          className="text-center max-w-3xl mx-auto mb-16"
+        >
           <Badge className="mb-6 bg-primary/10 text-primary border-primary/20 px-4 py-1.5 text-sm">
             Get in Touch
           </Badge>
@@ -93,11 +135,15 @@ export default function Contact() {
             Have a question about our collection or need styling advice? 
             Reach out and our team will get back to you soon.
           </p>
-        </div>
+        </motion.div>
 
         <div className="grid lg:grid-cols-5 gap-8">
           {/* Contact Form - takes 3/5 columns */}
-          <div className="lg:col-span-3">
+          <motion.div 
+            variants={fadeInUp}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="lg:col-span-3"
+          >
             <Card className="border-primary/10 shadow-xl backdrop-blur-sm bg-card/50">
               <CardContent className="p-6 md:p-8">
                 <div className="flex items-center gap-3 mb-6">
@@ -159,36 +205,45 @@ export default function Contact() {
                     />
                   </div>
 
-                  <Button
-                    type="submit"
-                    size="lg"
-                    disabled={isSubmitting || isSubmitted}
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground group transition-all duration-300"
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    {isSubmitting ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                        Sending...
-                      </div>
-                    ) : isSubmitted ? (
-                      <div className="flex items-center gap-2">
-                        <span>✓</span>
-                        Message Sent!
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        Send Message
-                        <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    )}
-                  </Button>
+                    <Button
+                      type="submit"
+                      size="lg"
+                      disabled={isSubmitting || isSubmitted}
+                      className="w-full bg-primary hover:bg-primary/90 text-primary-foreground group transition-all duration-300"
+                    >
+                      {isSubmitting ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                          Sending...
+                        </div>
+                      ) : isSubmitted ? (
+                        <div className="flex items-center gap-2">
+                          <span>✓</span>
+                          Message Sent!
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          Send Message
+                          <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                      )}
+                    </Button>
+                  </motion.div>
                 </form>
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
 
           {/* Sidebar - takes 2/5 columns */}
-          <div className="lg:col-span-2 space-y-6">
+          <motion.div 
+            variants={fadeInUp}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="lg:col-span-2 space-y-6"
+          >
             {/* Contact Methods */}
             <Card className="border-primary/10 shadow-xl backdrop-blur-sm bg-card/50">
               <CardContent className="p-6 space-y-4">
@@ -196,8 +251,11 @@ export default function Contact() {
                   Connect With Us
                 </h3>
                 {contactMethods.map((method, index) => (
-                  <div
+                  <motion.div
                     key={index}
+                    variants={fadeInUp}
+                    transition={{ duration: 0.5, delay: index * 0.1 + 0.1 }}
+                    whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
                     className="p-4 rounded-xl border border-primary/10 bg-background/30 transition-all hover:border-primary/30 hover:bg-background/50 duration-300"
                   >
                     <div className="flex items-start gap-3">
@@ -212,47 +270,57 @@ export default function Contact() {
                         <p className="text-xs text-muted-foreground">{method.sub}</p>
                       </div>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </CardContent>
             </Card>
 
             {/* Social & Hours */}
-            <Card className="border-primary/10 shadow-xl backdrop-blur-sm bg-card/50">
-              <CardContent className="p-6 space-y-4">
-                <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-primary" />
-                  <div>
-                    <p className="font-medium text-foreground">Working Hours</p>
-                    <p className="text-sm text-muted-foreground">
-                      Mon-Fri: 9am - 6pm IST
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Saturday: 10am - 4pm IST
-                    </p>
+            <motion.div
+              variants={fadeInUp}
+              transition={{ duration: 0.6, delay: 0.3 }}
+            >
+              <Card className="border-primary/10 shadow-xl backdrop-blur-sm bg-card/50">
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <Clock className="h-5 w-5 text-primary" />
+                    <div>
+                      <p className="font-medium text-foreground">Working Hours</p>
+                      <p className="text-sm text-muted-foreground">
+                        Mon-Fri: 9am - 6pm IST
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Saturday: 10am - 4pm IST
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                <div className="pt-4 border-t border-border">
-                  <p className="text-sm font-medium text-foreground mb-3">Follow Us</p>
-                  <div className="flex gap-3">
-                    {socialLinks.map((social, index) => (
-                      <Link
-                        key={index}
-                        href={social.href}
-                        className="p-2 rounded-full bg-muted/50 hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all"
-                        aria-label={social.label}
-                      >
-                        <social.icon className="h-5 w-5" />
-                      </Link>
-                    ))}
+                  <div className="pt-4 border-t border-border">
+                    <p className="text-sm font-medium text-foreground mb-3">Follow Us</p>
+                    <div className="flex gap-3">
+                      {socialLinks.map((social, index) => (
+                        <motion.div
+                          key={index}
+                          whileHover={{ scale: 1.15, rotate: 5 }}
+                          whileTap={{ scale: 0.9 }}
+                        >
+                          <Link
+                            href={social.href}
+                            className="p-2 rounded-full bg-muted/50 hover:bg-primary/10 text-muted-foreground hover:text-primary transition-all"
+                            aria-label={social.label}
+                          >
+                            <social.icon className="h-5 w-5" />
+                          </Link>
+                        </motion.div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }

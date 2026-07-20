@@ -5,6 +5,13 @@ import ProductBreadcrumb from "@/components/product/ProductBreadcrumb";
 import ProductNotFound from "@/components/product/ProductNotFound";
 import RelatedProducts from "@/components/product/RelatedProducts";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/context/CartContext";
 import products from "@/data/products.json";
@@ -12,16 +19,22 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
   Check,
+  Facebook,
   Heart,
+  Instagram,
+  Link2,
+  MessageCircle,
   Minus,
   Plus,
   Share2,
   ShoppingCart,
   Star,
+  Twitter,
 } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 export default function Product() {
   const { addToCart } = useCart();
@@ -35,9 +48,9 @@ export default function Product() {
   const product = products.find((p) => p.id === parseInt(productId as string));
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(price);
@@ -73,7 +86,7 @@ export default function Product() {
       quantity: quantity,
       total: product.price * quantity,
     };
-    sessionStorage.setItem('buyNowItem', JSON.stringify(buyNowItem));
+    sessionStorage.setItem("buyNowItem", JSON.stringify(buyNowItem));
     router.push("/buy-now-checkout");
   };
 
@@ -85,7 +98,134 @@ export default function Product() {
     }
   };
 
-  // Simplified animation variants
+  // Helper function to copy text with fallback
+  const copyToClipboard = async (text: string) => {
+    try {
+      // Try using the modern clipboard API first
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        // Fallback: Use a temporary textarea element
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        textArea.style.top = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand('copy');
+          textArea.remove();
+        } catch (err) {
+          textArea.remove();
+          throw new Error('Failed to copy text');
+        }
+      }
+      return true;
+    } catch (err) {
+      console.error('Clipboard error:', err);
+      return false;
+    }
+  };
+
+  // Share functionality with clipboard fallback
+  const shareProduct = async (platform?: string) => {
+    const shareData = {
+      title: product.name,
+      text: `Check out ${product.name} on HillVogue! 🛍️`,
+      url: `${window.location.origin}/product/${product.id}`,
+    };
+
+    if (platform) {
+      const encodedUrl = encodeURIComponent(shareData.url);
+      const encodedText = encodeURIComponent(shareData.text);
+      let shareUrl = "";
+
+      switch (platform) {
+        case "whatsapp":
+          shareUrl = `https://wa.me/?text=${encodedText}%20${encodedUrl}`;
+          break;
+        case "instagram": {
+          const copied = await copyToClipboard(`${shareData.text} ${shareData.url}`);
+          if (copied) {
+            toast.success("Link copied! Open Instagram to share.");
+          } else {
+            toast.error("Unable to copy link. Please copy manually.");
+          }
+          return;
+        }
+        case "facebook":
+          shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}&quote=${encodedText}`;
+          break;
+        case "twitter":
+          shareUrl = `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`;
+          break;
+        case "messenger":
+          shareUrl = `https://www.facebook.com/dialog/send?link=${encodedUrl}&app_id=your_app_id`;
+          break;
+        case "copy": {
+          const copied = await copyToClipboard(`${shareData.text} ${shareData.url}`);
+          if (copied) {
+            toast.success("Link copied to clipboard!");
+          } else {
+            toast.error("Unable to copy link. Please copy manually.");
+          }
+          return;
+        }
+        default:
+          if (navigator.share) {
+            try {
+              await navigator.share(shareData);
+              return;
+            } catch (err) {
+              if (err instanceof Error && err.name !== "AbortError") {
+                console.error("Share error:", err);
+                toast.error("Failed to share. Try copying the link.");
+              }
+              return;
+            }
+          }
+          const copied = await copyToClipboard(`${shareData.text} ${shareData.url}`);
+          if (copied) {
+            toast.success("Link copied to clipboard!");
+          } else {
+            toast.error("Unable to copy link. Please copy manually.");
+          }
+          return;
+      }
+
+      if (shareUrl) {
+        window.open(shareUrl, "_blank", "noopener,noreferrer,width=600,height=500");
+      }
+    } else {
+      if (navigator.share) {
+        try {
+          await navigator.share(shareData);
+          return;
+        } catch (err) {
+          if (err instanceof Error && err.name !== "AbortError") {
+            console.error("Share error:", err);
+            const copied = await copyToClipboard(`${shareData.text} ${shareData.url}`);
+            if (copied) {
+              toast.success("Link copied to clipboard!");
+            } else {
+              toast.error("Unable to copy link. Please copy manually.");
+            }
+          }
+          return;
+        }
+      }
+      const copied = await copyToClipboard(`${shareData.text} ${shareData.url}`);
+      if (copied) {
+        toast.success("Link copied to clipboard!");
+      } else {
+        toast.error("Unable to copy link. Please copy manually.");
+      }
+    }
+  };
+
+  // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -121,12 +261,19 @@ export default function Product() {
       transition={{ duration: 0.5 }}
       className="container mx-auto px-4 sm:px-6 lg:px-8 py-8"
     >
-      <motion.div variants={itemVariants} transition={{ duration: 0.5, delay: 0.1 }}>
+      <motion.div
+        variants={itemVariants}
+        transition={{ duration: 0.5, delay: 0.1 }}
+      >
         <ProductBreadcrumb />
       </motion.div>
 
       <div className="grid lg:grid-cols-2 gap-12 mb-16">
-        <motion.div variants={imageVariants} transition={{ duration: 0.6, delay: 0.2 }} className="space-y-4">
+        <motion.div
+          variants={imageVariants}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="space-y-4"
+        >
           <div className="w-full max-w-[500px] mx-auto flex flex-col items-center px-4">
             <div className="rounded-xl shadow-lg overflow-hidden mb-4 w-full">
               <Image
@@ -142,11 +289,15 @@ export default function Product() {
           </div>
         </motion.div>
 
-        <motion.div variants={itemVariants} transition={{ duration: 0.5, delay: 0.3 }} className="space-y-6">
+        <motion.div
+          variants={itemVariants}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="space-y-6"
+        >
           <h1 className="text-3xl lg:text-4xl font-bold text-foreground mb-4">
             {product.name}
           </h1>
-          
+
           <div className="flex items-center gap-2 mb-4">
             <div className="flex items-center gap-1">
               {[...Array(5)].map((_, i) => (
@@ -254,7 +405,10 @@ export default function Product() {
             </div>
 
             <div className="flex items-center gap-4">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
                 <Button
                   variant="ghost"
                   size="sm"
@@ -271,26 +425,84 @@ export default function Product() {
                 </Button>
               </motion.div>
 
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-muted-foreground hover:text-foreground"
-                >
-                  <Share2 className="h-4 w-4 mr-2" />
-                  Share
-                </Button>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Share
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56">
+                    <DropdownMenuItem
+                      onClick={() => shareProduct("whatsapp")}
+                      className="cursor-pointer"
+                    >
+                      <MessageCircle className="h-4 w-4 mr-2 text-green-600" />
+                      WhatsApp
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => shareProduct("facebook")}
+                      className="cursor-pointer"
+                    >
+                      <Facebook className="h-4 w-4 mr-2 text-blue-600" />
+                      Facebook
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => shareProduct("twitter")}
+                      className="cursor-pointer"
+                    >
+                      <Twitter className="h-4 w-4 mr-2 text-blue-400" />
+                      Twitter / X
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => shareProduct("instagram")}
+                      className="cursor-pointer"
+                    >
+                      <Instagram className="h-4 w-4 mr-2 text-pink-600" />
+                      Instagram
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => shareProduct("messenger")}
+                      className="cursor-pointer"
+                    >
+                      <MessageCircle className="h-4 w-4 mr-2 text-blue-500" />
+                      Messenger
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => shareProduct("copy")}
+                      className="cursor-pointer"
+                    >
+                      <Link2 className="h-4 w-4 mr-2 text-muted-foreground" />
+                      Copy Link
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </motion.div>
             </div>
           </div>
         </motion.div>
       </div>
 
-      <motion.div variants={itemVariants} transition={{ duration: 0.5, delay: 0.4 }}>
+      <motion.div
+        variants={itemVariants}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
         <Features />
       </motion.div>
 
-      <motion.div variants={itemVariants} transition={{ duration: 0.5, delay: 0.5 }}>
+      <motion.div
+        variants={itemVariants}
+        transition={{ duration: 0.5, delay: 0.5 }}
+      >
         <RelatedProducts product={product} />
       </motion.div>
     </motion.div>

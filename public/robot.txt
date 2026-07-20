@@ -1,0 +1,12 @@
+# Allow all crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /login/
+Disallow: /signup/
+
+# Sitemap location
+Sitemap: https://hillvogue.vercel.app/sitemap.xml
