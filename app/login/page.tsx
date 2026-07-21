@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { FaFacebook, FaGoogle } from "react-icons/fa";
+import { FaFacebook, FaGoogle, FaLinkedin } from "react-icons/fa";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -18,6 +18,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [socialLoading, setSocialLoading] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,16 +48,31 @@ export default function LoginPage() {
     setIsLoading(false);
   };
 
-  const handleSocialLogin = async (provider: "google" | "facebook") => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider,
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+  const handleSocialLogin = async (provider: "google" | "facebook" | "linkedin") => {
+    setSocialLoading(provider);
+    setError("");
 
-    if (error) {
-      setError(error.message);
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: provider,
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        setError(error.message);
+        setSocialLoading(null);
+        return;
+      }
+
+      // Store the provider for callback handling
+      localStorage.setItem("oauthProvider", provider);
+      
+    } catch (err) {
+      console.error(`${provider} login error:`, err);
+      setError(`Failed to login with ${provider.charAt(0).toUpperCase() + provider.slice(1)}. Please try again.`);
+      setSocialLoading(null);
     }
   };
 
@@ -169,17 +185,41 @@ export default function LoginPage() {
           <div className="flex gap-6 justify-center">
             <button
               onClick={() => handleSocialLogin("google")}
-              className="p-3 rounded-full hover:bg-gray-100 transition-colors"
+              disabled={isLoading || socialLoading !== null}
+              className="p-3 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed relative"
               aria-label="Login with Google"
             >
-              <FaGoogle className="h-8 w-8 text-[#4285F4]" />
+              {socialLoading === "google" ? (
+                <div className="w-8 h-8 border-2 border-[#4285F4] border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <FaGoogle className="h-8 w-8 text-[#4285F4]" />
+              )}
             </button>
+            
             <button
               onClick={() => handleSocialLogin("facebook")}
-              className="p-3 rounded-full hover:bg-gray-100 transition-colors"
+              disabled={isLoading || socialLoading !== null}
+              className="p-3 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed relative"
               aria-label="Login with Facebook"
             >
-              <FaFacebook className="h-8 w-8 text-[#1877F2]" />
+              {socialLoading === "facebook" ? (
+                <div className="w-8 h-8 border-2 border-[#1877F2] border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <FaFacebook className="h-8 w-8 text-[#1877F2]" />
+              )}
+            </button>
+            
+            <button
+              onClick={() => handleSocialLogin("linkedin")}
+              disabled={isLoading || socialLoading !== null}
+              className="p-3 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed relative"
+              aria-label="Login with LinkedIn"
+            >
+              {socialLoading === "linkedin" ? (
+                <div className="w-8 h-8 border-2 border-[#0A66C2] border-t-transparent rounded-full animate-spin" />
+              ) : (
+                <FaLinkedin className="h-8 w-8 text-[#0A66C2]" />
+              )}
             </button>
           </div>
         </CardContent>

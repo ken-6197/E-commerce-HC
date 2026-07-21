@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { FaFacebook, FaGoogle, FaInstagram } from "react-icons/fa";
+import { FaFacebook, FaGoogle, FaLinkedin } from "react-icons/fa";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -92,25 +92,15 @@ export default function SignUpPage() {
     setIsLoading(false);
   };
 
-  const handleSocialLogin = async (provider: "google" | "facebook" | "instagram") => {
+  const handleSocialLogin = async (provider: "google" | "facebook" | "linkedin") => {
     setSocialLoading(provider);
     setError("");
 
     try {
-      // For Instagram, we need to use the correct provider name
-      const providerName = provider === "instagram" ? "instagram" : provider;
-      
       const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: providerName,
+        provider: provider,
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
-          queryParams: {
-            // For Instagram, we might need additional parameters
-            ...(provider === "instagram" && {
-              // Instagram might need specific scopes
-              scope: 'user_profile,user_media',
-            }),
-          },
         },
       });
 
@@ -122,10 +112,6 @@ export default function SignUpPage() {
         return;
       }
 
-      // The user will be redirected to the provider's login page
-      // After successful login, they'll be redirected back to /auth/callback
-      // The callback will handle the session creation
-      
       // Store the provider for callback handling
       localStorage.setItem("oauthProvider", provider);
       
@@ -322,15 +308,15 @@ export default function SignUpPage() {
             </button>
             
             <button
-              onClick={() => handleSocialLogin("instagram")}
+              onClick={() => handleSocialLogin("linkedin")}
               disabled={isLoading || socialLoading !== null}
               className="p-3 rounded-full hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed relative"
-              aria-label="Sign up with Instagram"
+              aria-label="Sign up with LinkedIn"
             >
-              {socialLoading === "instagram" ? (
-                <div className="w-8 h-8 border-2 border-[#E4405F] border-t-transparent rounded-full animate-spin" />
+              {socialLoading === "linkedin" ? (
+                <div className="w-8 h-8 border-2 border-[#0A66C2] border-t-transparent rounded-full animate-spin" />
               ) : (
-                <FaInstagram className="h-8 w-8 text-[#E4405F]" />
+                <FaLinkedin className="h-8 w-8 text-[#0A66C2]" />
               )}
             </button>
           </div>
