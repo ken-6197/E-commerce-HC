@@ -1,49 +1,79 @@
+// app/api/orders/route.ts
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
-import { sendOrderConfirmationEmail } from '@/lib/email';
+import { createClient } from '@supabase/supabase-js';
 
 export async function POST(request: Request) {
   try {
-    // Check if supabase is initialized
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-      return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 });
-    }
-
     const authHeader = request.headers.get('Authorization');
     if (!authHeader) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    // ✅ Create client with the token
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        global: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+      }
+    );
+
+    // ✅ Get user - THIS IS THE ONLY SAFE WAY
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (userError || !user) {
+      console.error('Auth error:', userError);
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
-    const { items, total, shippingAddress } = await request.json();
+    const body = await request.json();
+    const { items, total, shippingAddress } = body;
+
+    if (!items || !total || !shippingAddress) {
+      return NextResponse.json(
+        { error: 'Missing required fields' },
+        { status: 400 }
+      );
+    }
 
     const orderNumber = `HV-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
 
+    // ✅ Insert order with user.id from the session
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .insert({
         user_id: user.id,
         order_number: orderNumber,
         total: total,
-        shipping_address: shippingAddress,
         status: 'pending',
+        shipping_address: shippingAddress,
+        created_at: new Date().toISOString(),
       })
       .select()
       .single();
 
     if (orderError) {
-      return NextResponse.json({ error: orderError.message }, { status: 500 });
+      console.error('Order insert error:', orderError);
+      return NextResponse.json(
+        { error: orderError.message },
+        { status: 500 }
+      );
     }
 
+    // ✅ Insert order items
     const orderItems = items.map((item: any) => ({
       order_id: order.id,
-      product_id: null,
+      product_id: item.id,
       product_name: item.name,
       product_price: item.price,
       quantity: item.quantity,
@@ -54,66 +84,94 @@ export async function POST(request: Request) {
       .insert(orderItems);
 
     if (itemsError) {
-      return NextResponse.json({ error: itemsError.message }, { status: 500 });
+      console.error('Order items insert error:', itemsError);
+      await supabase.from('orders').delete().eq('id', order.id);
+      return NextResponse.json(
+        { error: itemsError.message },
+        { status: 500 }
+      );
     }
 
-    // Send order confirmation email
-    try {
-      await sendOrderConfirmationEmail(order, user, orderItems);
-    } catch (emailError) {
-      console.error('Email sending failed:', emailError);
-      // Continue even if email fails - order is still created
-    }
-
-    return NextResponse.json({ 
-      order, 
-      message: 'Order created successfully. Confirmation email sent.' 
+    return NextResponse.json({
+      success: true,
+      order: order,
+      message: 'Order placed successfully!',
     });
   } catch (error) {
-    console.error('Error:', error);
-    return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
+    console.error('API error:', error);
+    return NextResponse.json(
+      { error: 'Something went wrong' },
+      { status: 500 }
+    );
   }
 }
 
 export async function GET(request: Request) {
   try {
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL) {
-      return NextResponse.json({ error: 'Supabase not configured' }, { status: 500 });
-    }
-
     const authHeader = request.headers.get('Authorization');
     if (!authHeader) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        global: {
+          headers: {
+            Authorization: authHeader,
+          },
+        },
+      }
+    );
+
+    // ✅ Get user safely
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
     
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (userError || !user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
     }
 
-    const { data: orders, error } = await supabase
+    // ✅ Fetch orders - only for this user
+    const { data: orders, error: ordersError } = await supabase
       .from('orders')
-      .select('*')
+      .select(`
+        id,
+        order_number,
+        total,
+        status,
+        shipping_address,
+        created_at,
+        order_items (
+          id,
+          product_name,
+          product_price,
+          quantity
+        )
+      `)
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+    if (ordersError) {
+      console.error('Orders fetch error:', ordersError);
+      return NextResponse.json(
+        { error: 'Failed to fetch orders' },
+        { status: 500 }
+      );
     }
 
-    const ordersWithItems = await Promise.all(orders.map(async (order) => {
-      const { data: items } = await supabase
-        .from('order_items')
-        .select('*')
-        .eq('order_id', order.id);
-      return { ...order, order_items: items || [] };
-    }));
-
-    return NextResponse.json(ordersWithItems);
+    return NextResponse.json(orders || []);
   } catch (error) {
-    console.error('Error:', error);
-    return NextResponse.json({ error: 'Something went wrong' }, { status: 500 });
+    console.error('API error:', error);
+    return NextResponse.json(
+      { error: 'Something went wrong' },
+      { status: 500 }
+    );
   }
 }

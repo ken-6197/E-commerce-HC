@@ -13,12 +13,10 @@ import Link from "next/link";
 
 export default function BuyNowCheckoutPage() {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [authError, setAuthError] = useState(false);
-  const [session, setSession] = useState<any>(null);
   const [buyNowItem, setBuyNowItem] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: "",
@@ -30,7 +28,6 @@ export default function BuyNowCheckoutPage() {
   });
 
   useEffect(() => {
-    // Get buy now item from session storage
     const item = sessionStorage.getItem('buyNowItem');
     if (!item) {
       router.push("/");
@@ -41,20 +38,18 @@ export default function BuyNowCheckoutPage() {
     
     const checkAuth = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
+        const { data: { user }, error } = await supabase.auth.getUser();
         
-        if (error || !session) {
+        if (error || !user) {
           setAuthError(true);
           setLoading(false);
           return;
         }
         
-        setSession(session);
-        setUser(session.user);
         setFormData(prev => ({ 
           ...prev, 
-          email: session.user.email || "",
-          name: session.user.user_metadata?.full_name || "",
+          email: user.email || "",
+          name: user.user_metadata?.full_name || "",
         }));
         setLoading(false);
       } catch (err) {
@@ -76,8 +71,9 @@ export default function BuyNowCheckoutPage() {
     setSubmitting(true);
 
     try {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
-      if (!currentSession) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        alert("Please login to place an order");
         setSubmitting(false);
         return;
       }
@@ -97,11 +93,11 @@ export default function BuyNowCheckoutPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${currentSession.access_token}`,
+          "Authorization": `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           items,
-          total: total,
+          total,
           shippingAddress,
         }),
       });
@@ -118,6 +114,7 @@ export default function BuyNowCheckoutPage() {
         alert(data.error || "Something went wrong");
       }
     } catch (error) {
+      console.error("Order error:", error);
       alert("Failed to place order. Please try again.");
     }
 
@@ -278,7 +275,10 @@ export default function BuyNowCheckoutPage() {
                       disabled={submitting}
                     >
                       {submitting ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Placing Order...
+                        </>
                       ) : (
                         "Place Order"
                       )}

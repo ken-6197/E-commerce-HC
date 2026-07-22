@@ -32,51 +32,61 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession();
-        if (!session) {
-          router.push("/login");
-          return;
-        }
-
-        const res = await fetch("/api/orders", {
-          headers: {
-            "Authorization": `Bearer ${session.access_token}`,
-          },
-        });
-        
-        if (!res.ok) throw new Error("Failed to fetch orders");
-        const data = await res.json();
-        setOrders(data);
-      } catch (err) {
-        setError("Failed to load orders");
-        console.error(err);
-      } finally {
-        setLoading(false);
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        router.push("/login");
+        return;
       }
+      setIsLoggedIn(true);
+      await fetchOrders();
     };
+    checkAuth();
+  }, []);
 
-    fetchOrders();
-  }, [router]);
+  const fetchOrders = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error("Not authenticated");
+      }
+
+      const response = await fetch("/api/orders", {
+        headers: {
+          "Authorization": `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch orders");
+      }
+
+      const data = await response.json();
+      console.log("Orders fetched:", data);
+      setOrders(data || []);
+    } catch (err) {
+      console.error("Error fetching orders:", err);
+      setError(err instanceof Error ? err.message : "Failed to load orders");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "pending":
-        return <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-200">Pending</Badge>;
-      case "processing":
-        return <Badge className="bg-blue-500/10 text-blue-600 border-blue-200">Processing</Badge>;
-      case "shipped":
-        return <Badge className="bg-purple-500/10 text-purple-600 border-purple-200">Shipped</Badge>;
-      case "delivered":
-        return <Badge className="bg-green-500/10 text-green-600 border-green-200">Delivered</Badge>;
-      case "cancelled":
-        return <Badge className="bg-red-500/10 text-red-600 border-red-200">Cancelled</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
+    const statusMap: Record<string, { label: string; className: string }> = {
+      pending: { label: "Pending", className: "bg-yellow-500/10 text-yellow-600 border-yellow-200" },
+      processing: { label: "Processing", className: "bg-blue-500/10 text-blue-600 border-blue-200" },
+      shipped: { label: "Shipped", className: "bg-purple-500/10 text-purple-600 border-purple-200" },
+      delivered: { label: "Delivered", className: "bg-green-500/10 text-green-600 border-green-200" },
+      cancelled: { label: "Cancelled", className: "bg-red-500/10 text-red-600 border-red-200" },
+    };
+    
+    const statusInfo = statusMap[status] || { label: status, className: "bg-gray-500/10 text-gray-600 border-gray-200" };
+    return <Badge className={statusInfo.className}>{statusInfo.label}</Badge>;
   };
 
   if (loading) {
@@ -85,6 +95,10 @@ export default function OrdersPage() {
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
+  }
+
+  if (!isLoggedIn) {
+    return null;
   }
 
   return (
