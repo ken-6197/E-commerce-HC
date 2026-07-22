@@ -5,17 +5,65 @@ import EmptyCart from "@/components/cart/EmptyCart";
 import OrderSummary from "@/components/cart/OrderSummary";
 import Recommendations from "@/components/cart/Recommendations";
 import PageTransition from "@/components/PageTransition";
-import StaggerContainer from "@/components/StaggerContainer";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
-import { ArrowLeft } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { ArrowLeft, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function Cart() {
   const router = useRouter();
   const { cart } = useCart();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
+  
   const itemCount = cart?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setIsLoggedIn(!!user);
+      setLoading(false);
+    };
+    checkAuth();
+  }, []);
+
+  // If not logged in, show login prompt
+  if (!loading && !isLoggedIn) {
+    return (
+      <PageTransition>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="max-w-md mx-auto text-center">
+            <div className="bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-8">
+              <AlertCircle className="h-16 w-16 text-yellow-500 mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-foreground mb-2">
+                Login Required
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                Please login to view and manage your cart items.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button
+                  className="bg-primary text-white hover:bg-primary/90"
+                  onClick={() => router.push("/login")}
+                >
+                  Login
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => router.push("/signup")}
+                >
+                  Create Account
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </PageTransition>
+    );
+  }
 
   if (!cart || cart.length === 0) {
     return <EmptyCart />;

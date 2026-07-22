@@ -4,11 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCart } from "@/context/CartContext";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/lib/supabase";
 import { motion } from "framer-motion";
 import { Check, Eye, Heart, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 
 interface Product {
   id: number;
@@ -20,6 +23,7 @@ interface Product {
 }
 
 export default function ProductCard({ product }: { product: Product }) {
+  const router = useRouter();
   const [isLiked, setIsLiked] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
@@ -30,6 +34,18 @@ export default function ProductCard({ product }: { product: Product }) {
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // ✅ Check if user is logged in
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error("Please login to add items to your cart");
+      // Redirect to login page after a short delay
+      setTimeout(() => {
+        router.push("/login");
+      }, 1500);
+      return;
+    }
 
     setIsAdding(true);
 
